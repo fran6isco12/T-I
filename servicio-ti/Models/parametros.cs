@@ -32,8 +32,7 @@ namespace servicio_ti
             pv_y = new List<int>();
             String linea = "";
             centro_ventas = new List<string>();
-            punto_ventas = new List<string>();
-            
+            punto_ventas = new List<string>();            
             StreamReader leer;
             if (File.Exists(@"\grafos-ti\parametros.txt")==true){
 
