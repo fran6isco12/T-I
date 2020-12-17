@@ -10,86 +10,130 @@ namespace servicio_ti
 {
     public class parametros
     {
-        List<string> centro_ventas;
-        List<string> punto_ventas;
-        int count_string;
+        public int Id;
+        public List<string> centro_ventas;
+        public List<string> punto_ventas;
+        public List<int> cd_x;
+        public List<int> cd_y;
+        public List<int> pv_x;
+        public List<int> pv_y;
+        public int[] carga;
+        public int[] centro;
 
-        public List<string> leer()
-        {
+        public parametros() { }
+        public string leer()
+        { 
+            int pc1 = 0;
+            int pc2 = 0;
+            int com = 0;
+            cd_x = new List<int>();
+            cd_y = new List<int>();
+            pv_x = new List<int>();
+            pv_y = new List<int>();
+            String linea = "";
             centro_ventas = new List<string>();
             punto_ventas = new List<string>();
-            int count_string = 0;
-            StreamReader leer = new StreamReader(@"C:\texto\mi_texto.txt");
+            
+            StreamReader leer;
+            if (File.Exists(@"\grafos-ti\parametros.txt")==true){
 
+                leer = new StreamReader(@"\grafos-ti\parametros.txt"); 
+            }
+            else
+            {
+                return ("archivo no encontrado");
+            }
             while (!leer.EndOfStream)
-            {
-                String linea = leer.ReadLine();
-                for (int i = 0; i < linea.Length; i++)
+            {   
+                pc1 = 0;
+                pc2 = 0;
+                com = 0;
+                linea= leer.ReadLine();
+                if (linea != null)
                 {
-                    count_string++;
+                    for (int i = 0; i < linea.Count(); i++)
+                    {
+                        if (linea.Substring(i, 1) == ";")
+                        {
+                            if (pc1 == 0)
+                            {
+                                pc1 = i;
+                            }
+                            else
+                            {
+                                if (pc2 == 0)
+                                {
+                                    pc2 = i;
+                                }
+                                else
+                                {
+                                    Log(linea + " solo se aceptan hasta 2 ;", File.AppendText(@"/grafos-ti/loge.txt"));
+                                    return ("formato de los datos no valido");
+                                }
+                            }
+                        }
+                        else
+                        {   if (linea.Substring(i, 1) == ",")
+                            {
+                                if (com == 0)
+                                {
+                                    com = i;
+                                }
+                                else
+                                {
+                                    Log(linea + " mas de una coma en el archivo", File.AppendText(@"/grafos-ti/loge.txt"));
+                                    return ("formato de los datos no valido");
+                                }
+                            }
+                        }
+                    }
+                    if (linea.Substring(0, 1) == "C")
+                    {
+                        centro_ventas.Add(linea.Substring(pc1+1, pc2 - (pc1 + 1)));
+                        cd_x.Add(Int32.Parse((linea.Substring(pc2+1, com - (pc2 + 1)))));
+                        cd_y.Add(Int32.Parse(linea.Substring(com+1, linea.Count() - (com + 1))));
+                    }
+                    else
+                    {
+                        if (linea.Substring(0, 1) == "P")
+                        {
+                            punto_ventas.Add(linea.Substring(pc1+1, pc2 - (pc1 + 1)));
+                            pv_x.Add(Int32.Parse(linea.Substring(pc2+1, com-(pc2 + 1))));
+                            pv_y.Add(Int32.Parse(linea.Substring(com+1, linea.Count()-(com + 1))));
+                        }
+                        else
+                        {
+                            Log(linea + " error de identificador P o  C", File.AppendText(@"/grafos-ti/loge.txt"));
+                            return ("formato de los datos no valido");
+                        }
+                    }
+
                 }
-                string dif;
-                dif = linea.Substring(0, 1);
-                if (dif == "C")
-                    centro_ventas.Add(linea.Substring(2, (count_string - 2)));
-                if (dif == "P")
-                    punto_ventas.Add(linea.Substring(2, (count_string - 2)));
             }
-            Console.WriteLine("El contenido de punto ventas es:");
-            foreach (string punto in punto_ventas)
-            {
-                Console.WriteLine(punto);
-            }
-            Console.WriteLine("El contenido de centro ventas es:");
-            foreach (string centro in centro_ventas)
-            {
-                Console.WriteLine(centro);
-            }
-            Console.ReadLine();
-            return centro_ventas;
+            Log("operacion completada", File.AppendText(@"/grafos-ti/log.txt"));
+            leer.Close();
+            carga = new int[punto_ventas.Count()];
+            centro = new int[punto_ventas.Count()];
+            return "parametros agregados";
 
         }
-
-        public List<string> leer_C()
-        {
-            centro_ventas = new List<string>();
-            int count_string = 0;
-            StreamReader leer_C = new StreamReader(@"C:\texto\mi_texto.txt");
-
-            while (!leer_C.EndOfStream)
-            {
-                String linea = leer_C.ReadLine();
-                for (int i = 0; i < linea.Length; i++)
-                {
-                    count_string++;
-                }
-                string dif;
-                dif = linea.Substring(0, 1);
-                if (dif == "C")
-                    centro_ventas.Add(linea.Substring(2, (count_string - 2)));
-            }
-            return centro_ventas;
+        public string[] pvtar() {
+            return punto_ventas.ToArray();
         }
 
-        public List<string> leer_P()
+        public string[] cdtar()
         {
-            punto_ventas = new List<string>();
-            int count_string = 0;
-            StreamReader leer_P = new StreamReader(@"C:\texto\mi_texto.txt");
+            return centro_ventas.ToArray();
+        }
 
-            while (!leer_P.EndOfStream)
-            {
-                String linea = leer_P.ReadLine();
-                for (int i = 0; i < linea.Length; i++)
-                {
-                    count_string++;
-                }
-                string dif;
-                dif = linea.Substring(0, 1);
-                if (dif == "P")
-                    punto_ventas.Add(linea.Substring(2, (count_string - 2)));
-            }
-            return punto_ventas;
+        public static void Log(string logMessage, TextWriter w)
+        {
+            w.Write("\r\nLog Entry : ");
+            w.WriteLine($"{DateTime.Now.ToLongTimeString()} {DateTime.Now.ToLongDateString()}");
+            w.WriteLine("  :");
+            w.WriteLine($"  :{logMessage}");
+            w.WriteLine("-------------------------------");
+            w.Close();
         }
 
     }

@@ -160,8 +160,11 @@
     <Compile Include="Global.asax.cs">
       <DependentUpon>Global.asax</DependentUpon>
     </Compile>
+    <Compile Include="Models\datos.cs" />
+    <Compile Include="Models\hoja ruta.cs" />
     <Compile Include="Models\parametros.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
+    <Compile Include="repo\rppar.cs" />
   </ItemGroup>
   <ItemGroup>
     <Content Include="Areas\HelpPage\HelpPage.css" />
