@@ -14,6 +14,7 @@ namespace servicio_ti
         public string calcular(parametros a)
         {
             List<int> array;
+            List<int> array2;
             int con = 1;            
             int cona = 0;
             int centroac;
@@ -22,12 +23,14 @@ namespace servicio_ti
             int dist;
             int xac = 0;
             int yac = 0;
-            List<int> array2;
-            string path = @"\grafos-ti\hojaruta(" + $"{DateTime.Now.ToLongTimeString()} {DateTime.Now.ToLongDateString()}" + ".txt";
-            File.Create(path);
-            StreamWriter w = File.AppendText(path);
-            w.WriteLine($"{DateTime.Now.ToLongTimeString()} {DateTime.Now.ToLongDateString()}");
-            w.Close();
+            StreamWriter w2;
+            string path = @"\grafos-ti\hojaruta(" + DateTime.Now.ToString("MM-dd-yyyy_hh-mm-ss") +  ").txt";           
+            File.Create(path).Close();
+            
+            w2 = File.AppendText(path);
+            w2.WriteLine($"{DateTime.Now.ToLongTimeString()} {DateTime.Now.ToLongDateString()}");
+            w2.Close();
+
             while (cona < a.centro_ventas.Count())
             {
                 array = new List<int>();
@@ -44,63 +47,84 @@ namespace servicio_ti
                     }
                     while (array.Count() != 0)
                     {
-
+                        array2 = new List<int>();
                         camion = 1000;
                         xac = a.cd_x[cona];
                         yac = a.cd_y[cona];
-                        ruta = ruta + con + ": estacionamiento(0,0)=>centro de distribucion " + centroac + "(" + a.cd_x[cona] + "," + a.cd_y[cona] + ")" + "=>";
-                        dist = distancia(a, array, xac, yac);
-                        xac = a.pv_x[array[dist]];
-                        yac = a.pv_y[array[dist]];
-                        ruta = ruta + "=>puntodeventa" + a.punto_ventas[array[dist]] + "(" + xac + "," + yac + ")(" + a.carga[array[dist]] + ")";
-                        camion = camion - a.carga[dist];
-                        array2 = array;
-                        array2.Remove(array[dist]);
-                        array.Remove(array[dist]);
-                        while (camion != 0)
+                        ruta = ruta + con + ": estacionamiento(0,0)=>centro de distribucion " + centroac + "(" + a.cd_x[cona] + "," + a.cd_y[cona] + ")";
+                        if (array.Count > 1)
                         {
-                            while (array2.Count() > 0)
+                            dist = distancia(a, array, xac, yac);
+                            xac = a.pv_x[array[dist]];
+                            yac = a.pv_y[array[dist]];
+                            ruta = ruta + "=>puntodeventa" + a.punto_ventas[array[dist]] + "(" + xac + "," + yac + ")(" + a.carga[array[dist]] + ")";
+                            camion = camion - a.carga[array[dist]];
+                            array.Remove(array[dist]);
+                            array2.AddRange(array.ToArray());
+                            while (camion != 0)
                             {
-                                dist = distancia(a, array2, xac, yac);
-                                if (a.carga[array2[dist]] > 0 && camion >= a.carga[array2[dist]])
+
+                                if (array2.Count() > 1)
                                 {
-                                    xac = a.pv_x[array2[dist]];
-                                    yac = a.pv_y[array2[dist]];
-                                    ruta = ruta + "=>puntodeventa" + a.punto_ventas[array2[dist]] + "(" + xac + "," + yac + ")(" + a.carga[array2[dist]] + ")";
-                                    camion = camion - a.carga[dist];
-                                    array2.Remove(array2[dist]);
-                                    array.Remove(array2[dist]);
+
+                                    if (a.carga[array2[distancia(a, array2, xac, yac)]] > 0)
+                                    {
+                                        if (camion >= a.carga[array[dist]])
+                                        {
+
+                                            dist = distancia(a, array2, xac, yac);
+                                            xac = a.pv_x[array2[dist]];
+                                            yac = a.pv_y[array2[dist]];
+                                            ruta = ruta + "=>puntodeventa" + a.punto_ventas[array2[dist]] + "(" + xac + "," + yac + ")(" + a.carga[array2[dist]] + ")";
+                                            camion = camion - a.carga[array2[dist]];
+                                            array.Remove(array[dist]);
+                                            array2.Remove(array2[dist]);
+                                        }
+                                        else
+                                        {
+                                            array2.Remove(array2[dist]);
+                                        }
+                                    }
+
                                 }
                                 else
                                 {
                                     if (array2.Count() == 1)
                                     {
-                                        if (a.carga[array2[0]] > 0 && camion >= a.carga[array2[0]])
+                                        if (a.carga[array2[0]] > 0)
                                         {
-                                            ruta = ruta + "puntodeventa" + a.punto_ventas[array2[0]] + "(" + a.pv_x[array2[0]] + "," + a.pv_y[array2[0]] + ")(" + a.carga[array2[0]] + ")";
-                                            camion = 0;
-                                            array2.Remove(array2[0]);
-                                            array.Remove(array2[0]);
+                                            if (camion >= a.carga[array2[0]])
+                                            {
+                                                ruta = ruta + "=>puntodeventa" + a.punto_ventas[array2[0]] + "(" + a.pv_x[array2[0]] + "," + a.pv_y[array2[0]] + ")(" + a.carga[array2[0]] + ")";
+                                                camion = 0;
+                                                array.Remove(array[0]);
+                                                array2.Remove(array2[0]);
+                                            }
+                                            else
+                                            {
+
+                                                camion = 0;
+                                            }
                                         }
-                                        else
-                                        {
-                                            array2.Clear();
-                                            camion = 0;
-                                        }
-                                    }
-                                    else
-                                    {
-                                        array2.Remove(array2[dist]);
                                     }
                                 }
                             }
-                            logruta(ruta, File.AppendText(path));
-                            con += 1;
-                            ruta = "camion";
-
+                        }
+                        else
+                        {
+                            if (camion >= a.carga[array[0]])
+                            {
+                                ruta = ruta + "=>puntodeventa" + a.punto_ventas[array[0]] + "(" + a.pv_x[array[0]] + "," + a.pv_y[array[0]] + ")(" + a.carga[array[0]] + ")";
+                                camion = 0;
+                                array.Remove(array[0]);                                
+                            }
                         }
 
 
+
+                        logruta(ruta, File.AppendText(path));
+                        con += 1;
+                        ruta = "Camion";
                     }
 
 
@@ -140,7 +164,17 @@ namespace servicio_ti
         }
         public void logruta(string tx, TextWriter w)
         {
-            w.WriteLine("/n" + tx);
+            w.WriteLine("\n" + tx);
+            w.Close();
+        }
+        public static void Log(string logMessage, TextWriter w)
+        {
+            w.Write("\r\nLog Entry : ");
+            w.WriteLine($"{DateTime.Now.ToLongTimeString()} {DateTime.Now.ToLongDateString()}");
+            w.WriteLine("  :");
+            w.WriteLine($"  :{logMessage}");
+            w.WriteLine("-------------------------------");
+            w.Close();
         }
     }
 

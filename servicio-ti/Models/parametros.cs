@@ -113,7 +113,21 @@ namespace servicio_ti
             leer.Close();
             carga = new int[punto_ventas.Count()];
             centro = new int[punto_ventas.Count()];
-            return "parametros agregados";
+            if (centro_ventas.Count() != 0)
+            {   if (punto_ventas.Count() != 0)
+                { 
+                    return "parametros agregados"; 
+                }
+                else
+                {
+                    return ("archivo no contiene puntos de ventas");
+                }
+            }
+            else
+            {
+                return ("archivo no contiene centros de distribucion");
+
+            }
 
         }
         public string[] pvtar() {
@@ -125,6 +139,23 @@ namespace servicio_ti
             return centro_ventas.ToArray();
         }
 
+
+        public int cargas()
+        {
+            Log(centro.Count().ToString()+"-"+centro[0], File.AppendText(@"/grafos-ti/loge.txt"));
+            int con = 0;
+            for(int i = 0; i <centro.Count(); i++)
+            {
+                if (centro[i] != 0)
+                {
+                    con += 1;
+                    Log(con+ "->" + centro[i], File.AppendText(@"/grafos-ti/loge.txt"));
+                }
+            }
+            Log(con+""+centro[0], File.AppendText(@"/grafos-ti/log.txt"));
+            return con;
+            
+        }
         public static void Log(string logMessage, TextWriter w)
         {
             w.Write("\r\nLog Entry : ");

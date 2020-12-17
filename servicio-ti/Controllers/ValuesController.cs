@@ -4,6 +4,7 @@ using System.Linq;
 using System.Net;
 using System.Net.Http;
 using System.Web.Http;
+using System.IO;
 
 namespace servicio_ti.Controllers
 {
@@ -87,14 +88,45 @@ namespace servicio_ti.Controllers
             rppar rappar = new rppar();
             var parametr = rappar.obtenerpar(id);
             if (parametr != null)
-            {   var pvi= parametr.punto_ventas.IndexOf(guia.pv.ToString());
+            {   int pvi= parametr.punto_ventas.IndexOf(guia.pv.ToString());
+                Log("agregado"+parametr.carga[pvi]+"-" + parametr.centro[pvi], File.AppendText(@"/grafos-ti/loge.txt"));
                 parametr.carga[pvi]=guia.pvp;
                 parametr.centro[pvi] = guia.cdd;
+                Log("agregado2" + parametr.carga[pvi] + "-" + parametr.centro[pvi], File.AppendText(@"/grafos-ti/loge.txt"));
                 return Ok("despacho agregado");
             }
             else
             {
                 return BadRequest();
+            }
+        }
+        [Route("api/values/hojaruta/{id}")]
+        [HttpGet]
+        public IHttpActionResult hojaruta(int id)
+        {
+            rppar rappar = new rppar();
+            var parametr = rappar.obtenerpar(id);
+            if (parametr.centro_ventas.Count() != 0)
+            {
+                if (parametr.punto_ventas.Count() != 0)
+                {
+                    if (parametr.cargas() != 0)
+                    {
+                        return Ok(new hoja_ruta().calcular(parametr));
+                    }
+                    else
+                    {
+                        return BadRequest("no existen despachos");
+                    }
+                }
+                else
+                {
+                    return BadRequest("no existen puntos de venta");
+                }
+            }
+            else
+            {
+                return BadRequest("no existen centros de distribucion");
             }
         }
         // POST api/values
@@ -110,6 +142,15 @@ namespace servicio_ti.Controllers
         // DELETE api/values/5
         public void Delete(int id)
         {
+        }
+        public static void Log(string logMessage, TextWriter w)
+        {
+            w.Write("\r\nLog Entry : ");
+            w.WriteLine($"{DateTime.Now.ToLongTimeString()} {DateTime.Now.ToLongDateString()}");
+            w.WriteLine("  :");
+            w.WriteLine($"  :{logMessage}");
+            w.WriteLine("-------------------------------");
+            w.Close();
         }
     }
 }
