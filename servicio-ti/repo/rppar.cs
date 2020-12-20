@@ -21,5 +21,9 @@ namespace servicio_ti
                 _listparm.Add(newpar);
             }
         }
+        public void eliminar()
+        {
+            _listparm.Clear();
+        }
     }
 }

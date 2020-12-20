@@ -20,6 +20,7 @@ namespace servicio_ti.Controllers
             string mensaje = npar.leer();
             if (mensaje == "parametros agregados")
             {
+                rappar.eliminar();
                 rappar.Agregar(npar);
                 Log(mensaje, "getparametros", File.AppendText(@"/grafos-ti/tmp/log.txt"));
                 return Ok(mensaje);
