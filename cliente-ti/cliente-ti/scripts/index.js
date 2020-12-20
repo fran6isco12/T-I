@@ -127,14 +127,14 @@
         puntos = new Array();
         centros = new Array();
         leerparametros();
-        setTimeout(() => { getcentros(); }, 1000);
-        setTimeout(() => { getpuntos(); }, 2000);
+        setTimeout(() => { getcentros(); }, 2000);
+        setTimeout(() => { getpuntos(); }, 4000);
         setTimeout(() => {
             if (respuesta == "parametros agregados") { llenar() }
             else {
                 alert(respuesta)
             }
-        },3000);
+        },5000);
 
     }
     function addrun() {
