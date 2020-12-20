@@ -30,13 +30,14 @@ namespace servicio_ti
             w2 = File.AppendText(path);
             w2.WriteLine($"{DateTime.Now.ToLongTimeString()} {DateTime.Now.ToLongDateString()}");
             w2.Close();
-
+            Log("archivo creado en" + path, "calcular", File.AppendText(@"/grafos-ti/tmp/log(hojaruta).txt"));
             while (cona < a.centro_ventas.Count())
             {
                 array = new List<int>();
                 centroac = Int32.Parse(a.centro_ventas[cona]);
                 if (a.centro.Contains(centroac) == true)
                 {
+                    Log("creando las rutas del cento" + centroac, "calcular", File.AppendText(@"/grafos-ti/tmp/log(hojaruta).txt"));
                     for (int i = 0; i < a.centro.Count(); i++)
                     {
                         if (a.centro[i] == centroac)
@@ -57,6 +58,7 @@ namespace servicio_ti
                             dist = distancia(a, array, xac, yac);
                             xac = a.pv_x[array[dist]];
                             yac = a.pv_y[array[dist]];
+                            Log("agregado el punto" + a.punto_ventas[array[dist]] + " al camion" + con, "calcular", File.AppendText(@"/grafos-ti/tmp/log(hojaruta).txt"));
                             ruta = ruta + "=>puntodeventa" + a.punto_ventas[array[dist]] + "(" + xac + "," + yac + ")(" + a.carga[array[dist]] + ")";
                             camion = camion - a.carga[array[dist]];
                             array.Remove(array[dist]);
@@ -75,6 +77,7 @@ namespace servicio_ti
                                             dist = distancia(a, array2, xac, yac);
                                             xac = a.pv_x[array2[dist]];
                                             yac = a.pv_y[array2[dist]];
+                                            Log("agregado el punto" + a.punto_ventas[array2[dist]]+" al camion"+con, "calcular", File.AppendText(@"/grafos-ti/tmp/log(hojaruta).txt"));
                                             ruta = ruta + "=>puntodeventa" + a.punto_ventas[array2[dist]] + "(" + xac + "," + yac + ")(" + a.carga[array2[dist]] + ")";
                                             camion = camion - a.carga[array2[dist]];
                                             array.Remove(array[dist]);
@@ -95,6 +98,7 @@ namespace servicio_ti
                                         {
                                             if (camion >= a.carga[array2[0]])
                                             {
+                                                Log("agregado el punto" + a.punto_ventas[array2[0]] + " al camion" + con, "calcular", File.AppendText(@"/grafos-ti/tmp/log(hojaruta).txt"));
                                                 ruta = ruta + "=>puntodeventa" + a.punto_ventas[array2[0]] + "(" + a.pv_x[array2[0]] + "," + a.pv_y[array2[0]] + ")(" + a.carga[array2[0]] + ")";
                                                 camion = 0;
                                                 array.Remove(array[0]);
@@ -114,6 +118,7 @@ namespace servicio_ti
                         {
                             if (camion >= a.carga[array[0]])
                             {
+                                Log("agregado el punto" + a.punto_ventas[array[0]] + " al camion" + con, "calcular", File.AppendText(@"/grafos-ti/tmp/log(hojaruta).txt"));
                                 ruta = ruta + "=>puntodeventa" + a.punto_ventas[array[0]] + "(" + a.pv_x[array[0]] + "," + a.pv_y[array[0]] + ")(" + a.carga[array[0]] + ")";
                                 camion = 0;
                                 array.Remove(array[0]);                                
@@ -121,7 +126,7 @@ namespace servicio_ti
                         }
 
 
-
+                        Log("agregando linea al archivo" , "calcular", File.AppendText(@"/grafos-ti/tmp/log(hojaruta).txt"));
                         logruta(ruta, File.AppendText(path));
                         con += 1;
                         ruta = "Camion";
@@ -137,6 +142,7 @@ namespace servicio_ti
         
         public int distancia(parametros ab,List<int> vert, int x,int y)
         {
+            Log("calculando distancia mas corta", "distancia", File.AppendText(@"/grafos-ti/tmp/log(hojaruta).txt"));
             int x2;
             int y2;
             int resp=-1;
@@ -160,6 +166,7 @@ namespace servicio_ti
                     }
                 }
             }
+            Log("retornando indice de distancia mas corta "+resp, "distancia", File.AppendText(@"/grafos-ti/tmp/log(hojaruta).txt"));
             return resp;
         }
         public void logruta(string tx, TextWriter w)
@@ -167,11 +174,11 @@ namespace servicio_ti
             w.WriteLine("\n" + tx);
             w.Close();
         }
-        public static void Log(string logMessage, TextWriter w)
+        public static void Log(string logMessage,string function, TextWriter w)
         {
             w.Write("\r\nLog Entry : ");
             w.WriteLine($"{DateTime.Now.ToLongTimeString()} {DateTime.Now.ToLongDateString()}");
-            w.WriteLine("  :");
+            w.WriteLine("funcion  : "+function);
             w.WriteLine($"  :{logMessage}");
             w.WriteLine("-------------------------------");
             w.Close();

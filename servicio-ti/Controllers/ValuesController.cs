@@ -5,31 +5,29 @@ using System.Net;
 using System.Net.Http;
 using System.Web.Http;
 using System.IO;
+using System.Web.Http.Cors;
 
 namespace servicio_ti.Controllers
 {
+    [EnableCors(origins: "http://localhost:3030", headers: "*", methods: "*")]
     public class ValuesController : ApiController
     {
-        // GET api/values
-        public IEnumerable<string> Get()
-        {
-            return new string[] { "value1", "value2" };
-        }
-
-        // GET api/values/5
         public IHttpActionResult Get(int id)
         {
             rppar rappar = new rppar();
             parametros npar = new parametros();
             npar.Id = id;
-            string mensaje=npar.leer();
-            if(mensaje== "parametros agregados"){
+            string mensaje = npar.leer();
+            if (mensaje == "parametros agregados")
+            {
                 rappar.Agregar(npar);
+                Log(mensaje, "getparametros", File.AppendText(@"/grafos-ti/tmp/log.txt"));
                 return Ok(mensaje);
             }
             else
             {
-                return BadRequest(mensaje);
+                Log(mensaje,"getparametros", File.AppendText(@"/grafos-ti/tmp/loge.txt"));
+                return BadRequest();
             }
         }
         [Route("api/values/centros/{idc}")]
@@ -40,11 +38,14 @@ namespace servicio_ti.Controllers
             var parametr = rappar.obtenerpar(idc);
             if (parametr != null)
             {
+                
                 return Ok(parametr.cdtar());
+                
             }
             else
             {
-                return BadRequest("El archivo de parametros no esta cargado");
+                
+                return BadRequest();
             }
 
         }
@@ -55,31 +56,18 @@ namespace servicio_ti.Controllers
             rppar rappar = new rppar();
             var parametr = rappar.obtenerpar(idc);
             if (parametr != null)
-            {
+            {   
+                
                 return Ok(parametr.pvtar());
             }
             else
-            {
-                return BadRequest("El archivo de parametros no esta cargado");
+            {                
+                return BadRequest();
             }
 
         }
-        [Route("api/values/carga/{idc}")]
-        [HttpGet]
-        public IHttpActionResult cargas(int idc)
-        {
-            rppar rappar = new rppar();
-            var parametr = rappar.obtenerpar(idc);
-            if (parametr != null)
-            {
-                return Ok(parametr.carga);
-            }
-            else
-            {
-                return BadRequest("El archivo de parametros no esta cargado");
-            }
 
-        }
+
         [Route("api/values/agregar/{id}")]
         [HttpPost]
 
@@ -88,15 +76,16 @@ namespace servicio_ti.Controllers
             rppar rappar = new rppar();
             var parametr = rappar.obtenerpar(id);
             if (parametr != null)
-            {   int pvi= parametr.punto_ventas.IndexOf(guia.pv.ToString());
-                Log("agregado"+parametr.carga[pvi]+"-" + parametr.centro[pvi], File.AppendText(@"/grafos-ti/loge.txt"));
-                parametr.carga[pvi]=guia.pvp;
+            {
+                int pvi = parametr.punto_ventas.IndexOf(guia.pv.ToString());
+                Log("agregado" + parametr.carga[pvi] + "-" + parametr.centro[pvi], "post agregar despacho", File.AppendText(@"/grafos-ti/tmp/log.txt"));
+                parametr.carga[pvi] = guia.pvp;
                 parametr.centro[pvi] = guia.cdd;
-                Log("agregado2" + parametr.carga[pvi] + "-" + parametr.centro[pvi], File.AppendText(@"/grafos-ti/loge.txt"));
                 return Ok("despacho agregado");
             }
             else
             {
+                Log("parametros no encontrado", "post agregar despacho", File.AppendText(@"/grafos-ti/tmp/loge.txt"));
                 return BadRequest();
             }
         }
@@ -112,42 +101,33 @@ namespace servicio_ti.Controllers
                 {
                     if (parametr.cargas() != 0)
                     {
+                        Log("hoja de ruta generada", "gethoja ruta", File.AppendText(@"/grafos-ti/tmp/log.txt"));
                         return Ok(new hoja_ruta().calcular(parametr));
                     }
                     else
                     {
-                        return BadRequest("no existen despachos");
+                        Log("hoja de no ruta generada no existen despachos", "gethoja ruta", File.AppendText(@"/grafos-ti/tmp/loge.txt"));
+                        return BadRequest();
                     }
                 }
                 else
                 {
-                    return BadRequest("no existen puntos de venta");
+                    Log("hoja de no ruta generada no existen puntos de venta", "gethoja ruta", File.AppendText(@"/grafos-ti/tmp/loge.txt"));
+                    return BadRequest();
                 }
             }
             else
             {
-                return BadRequest("no existen centros de distribucion");
+                Log("hoja de no ruta generada no existen centros de distribucion", "gethoja ruta", File.AppendText(@"/grafos-ti/tmp/loge.txt"));
+                return BadRequest();
             }
         }
-        // POST api/values
-        public void Post([FromBody] string value)
-        {
-        }
 
-        // PUT api/values/5
-        public void Put(int id, [FromBody] string value)
-        {
-        }
-
-        // DELETE api/values/5
-        public void Delete(int id)
-        {
-        }
-        public static void Log(string logMessage, TextWriter w)
+        public static void Log(string logMessage, string function, TextWriter w)
         {
             w.Write("\r\nLog Entry : ");
             w.WriteLine($"{DateTime.Now.ToLongTimeString()} {DateTime.Now.ToLongDateString()}");
-            w.WriteLine("  :");
+            w.WriteLine("funcion: " + function);
             w.WriteLine($"  :{logMessage}");
             w.WriteLine("-------------------------------");
             w.Close();

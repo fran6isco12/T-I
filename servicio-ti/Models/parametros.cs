@@ -35,11 +35,12 @@ namespace servicio_ti
             punto_ventas = new List<string>();            
             StreamReader leer;
             if (File.Exists(@"\grafos-ti\parametros.txt")==true){
-
+                Log("archivo encontrado", "leyendo archivo", File.AppendText(@"/grafos-ti/tmp/log(parametros).txt"));
                 leer = new StreamReader(@"\grafos-ti\parametros.txt"); 
             }
             else
             {
+                Log("archivo no encontrado", "leyendo archivo", File.AppendText(@"/grafos-ti/tmp/log(parametros).txt"));
                 return ("archivo no encontrado");
             }
             while (!leer.EndOfStream)
@@ -65,8 +66,8 @@ namespace servicio_ti
                                     pc2 = i;
                                 }
                                 else
-                                {
-                                    Log(linea + " solo se aceptan hasta 2 ;", File.AppendText(@"/grafos-ti/loge.txt"));
+                                {   
+                                    Log(linea + " solo se aceptan hasta 2 ;", "leyendo archivo", File.AppendText(@"/grafos-ti/tmp/loge(parametros).txt"));
                                     return ("formato de los datos no valido");
                                 }
                             }
@@ -80,7 +81,7 @@ namespace servicio_ti
                                 }
                                 else
                                 {
-                                    Log(linea + " mas de una coma en el archivo", File.AppendText(@"/grafos-ti/loge.txt"));
+                                    Log(linea + " mas de una coma en el archivo", "leyendo archivo", File.AppendText(@"/grafos-ti/tmp/loge(parametros).txt"));
                                     return ("formato de los datos no valido");
                                 }
                             }
@@ -88,79 +89,134 @@ namespace servicio_ti
                     }
                     if (linea.Substring(0, 1) == "C")
                     {
-                        centro_ventas.Add(linea.Substring(pc1+1, pc2 - (pc1 + 1)));
-                        cd_x.Add(Int32.Parse((linea.Substring(pc2+1, com - (pc2 + 1)))));
-                        cd_y.Add(Int32.Parse(linea.Substring(com+1, linea.Count() - (com + 1))));
+                        if (number(linea.Substring(pc1 + 1, pc2 - (pc1 + 1))) == true)
+                        {
+                            centro_ventas.Add(linea.Substring(pc1 + 1, pc2 - (pc1 + 1)));
+                        }
+                        else
+                        {
+                            Log(linea + " mas de una coma en el archivo", "leyendo archivo", File.AppendText(@"/grafos-ti/tmp/loge(parametros).txt"));
+                            return ("formato de los datos no valido");
+                        }
+                        if(number(linea.Substring(pc2 + 1, com - (pc2 + 1))) == true)
+                        {
+                            cd_x.Add(Int32.Parse((linea.Substring(pc2 + 1, com - (pc2 + 1)))));
+                        }
+                        else
+                        {
+                            Log(linea + " mas de una coma en el archivo", "leyendo archivo", File.AppendText(@"/grafos-ti/tmp/loge(parametros).txt"));
+                            return ("formato de los datos no valido");
+                        }
+                        if (number(linea.Substring(com + 1, linea.Count() - (com + 1))) == true)
+                        {
+                            cd_y.Add(Int32.Parse(linea.Substring(com + 1, linea.Count() - (com + 1))));
+                        }
+                        else
+                        {
+                            Log(linea + " mas de una coma en el archivo", "leyendo archivo", File.AppendText(@"/grafos-ti/tmp/loge(parametros).txt"));
+                            return ("formato de los datos no valido");
+                        }
                     }
                     else
                     {
                         if (linea.Substring(0, 1) == "P")
-                        {
-                            punto_ventas.Add(linea.Substring(pc1+1, pc2 - (pc1 + 1)));
-                            pv_x.Add(Int32.Parse(linea.Substring(pc2+1, com-(pc2 + 1))));
-                            pv_y.Add(Int32.Parse(linea.Substring(com+1, linea.Count()-(com + 1))));
+                        {   if (number(linea.Substring(pc1 + 1, pc2 - (pc1 + 1))) == true)
+                            {
+                                punto_ventas.Add(linea.Substring(pc1 + 1, pc2 - (pc1 + 1)));
+                            }
+                            else
+                            {
+                                Log(linea + " mas de una coma en el archivo", "leyendo archivo", File.AppendText(@"/grafos-ti/tmp/loge(parametros).txt"));
+                                return ("formato de los datos no valido");
+                            }
+                            if (number(linea.Substring(pc2 + 1, com - (pc2 + 1))) == true)
+                            {
+                                pv_x.Add(Int32.Parse(linea.Substring(pc2 + 1, com - (pc2 + 1))));
+                            }
+                            else
+                            {
+                                Log(linea + "formato de los datos no valido ", "leyendo archivo", File.AppendText(@"/grafos-ti/tmp/loge(parametros).txt"));
+                                return ("formato de los datos no valido");
+                            }
+                            if (number(linea.Substring(com + 1, linea.Count() - (com + 1))) == true)
+                            {
+                                pv_y.Add(Int32.Parse(linea.Substring(com + 1, linea.Count() - (com + 1))));
+                            }
+                            else
+                            {
+                                Log(linea + " mas de una coma en el archivo formato de los datos no valido", "leyendo archivo", File.AppendText(@"/grafos-ti/tmp/loge(parametros).txt"));
+                                return ("formato de los datos no valido");
+                            }
                         }
                         else
                         {
-                            Log(linea + " error de identificador P o  C", File.AppendText(@"/grafos-ti/loge.txt"));
+                            Log(linea + " error de identificador P o  C formato de los datos no valido", "leyendo archivo", File.AppendText(@"/grafos-ti/tmp/loge(parametros).txt"));
                             return ("formato de los datos no valido");
                         }
                     }
 
                 }
             }
-            Log("operacion completada", File.AppendText(@"/grafos-ti/log.txt"));
+            
             leer.Close();
             carga = new int[punto_ventas.Count()];
             centro = new int[punto_ventas.Count()];
             if (centro_ventas.Count() != 0)
             {   if (punto_ventas.Count() != 0)
-                { 
-                    return "parametros agregados"; 
+                {
+                    Log("operacion completada parametros agregados", "leyendo archivo", File.AppendText(@"/grafos-ti/tmp/log(parametros).txt"));
+                    return "parametros agregados";
+                    
                 }
                 else
                 {
+                    Log("operacion completada archivo no contiene puntos de ventas", "leyendo archivo", File.AppendText(@"/grafos-ti/tmp/loge(parametros).txt"));
                     return ("archivo no contiene puntos de ventas");
                 }
             }
             else
             {
+                Log("operacion completada archivo no contiene centros de distribucion", "leyendo archivo", File.AppendText(@"/grafos-ti/tmp/loge(parametros).txt"));
                 return ("archivo no contiene centros de distribucion");
 
             }
 
         }
+        private bool number(string a)
+        { int num=new int();
+          return Int32.TryParse(a, out num);
+        }
         public string[] pvtar() {
+            Log("puntos:" + punto_ventas.ToArray().ToString(), "retornando puntos", File.AppendText(@"/grafos-ti/tmp/log(parametros).txt"));
             return punto_ventas.ToArray();
         }
 
         public string[] cdtar()
         {
+            Log("centros:" + centro_ventas.ToArray().ToString(), "retornando centros", File.AppendText(@"/grafos-ti/tmp/log(parametros).txt"));
             return centro_ventas.ToArray();
         }
 
 
         public int cargas()
         {
-            Log(centro.Count().ToString()+"-"+centro[0], File.AppendText(@"/grafos-ti/loge.txt"));
             int con = 0;
             for(int i = 0; i <centro.Count(); i++)
             {
                 if (centro[i] != 0)
                 {
                     con += 1;
-                    Log(con+ "->" + centro[i], File.AppendText(@"/grafos-ti/loge.txt"));
                 }
             }
-            Log(con+""+centro[0], File.AppendText(@"/grafos-ti/log.txt"));
+            Log("cargas:"+carga.ToArray().ToString(), "retornando cargas",File.AppendText(@"/grafos-ti/tmp/log(parametros).txt"));
             return con;
             
         }
-        public static void Log(string logMessage, TextWriter w)
+        public static void Log(string logMessage,string func, TextWriter w)
         {
             w.Write("\r\nLog Entry : ");
             w.WriteLine($"{DateTime.Now.ToLongTimeString()} {DateTime.Now.ToLongDateString()}");
-            w.WriteLine("  :");
+            w.WriteLine("funcion  :"+func);
             w.WriteLine($"  :{logMessage}");
             w.WriteLine("-------------------------------");
             w.Close();
